@@ -17,7 +17,7 @@
 
 import threading
 
-from sqlalchemy import Column, String, UnicodeText, Integer, Boolean
+from sqlalchemy import Column, String, UnicodeText, BigInteger, Boolean
 
 from haruka.modules.sql import SESSION, BASE
 
@@ -69,7 +69,7 @@ class BansF(BASE):
 
 class FedsUserSettings(BASE):
     __tablename__ = "feds_settings"
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)
     should_report = Column(Boolean, default=True)
 
     def __init__(self, user_id):

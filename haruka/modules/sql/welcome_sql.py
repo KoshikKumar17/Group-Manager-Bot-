@@ -116,7 +116,7 @@ class WelcomeSecurity(BASE):
 class UserRestirect(BASE):
     __tablename__ = "welcome_restirectlist"
     chat_id = Column(String(14), primary_key=True)
-    user_id = Column(Integer, primary_key=True, nullable=False)
+    user_id = Column(BigInteger, primary_key=True, nullable=False)
 
     def __init__(self, chat_id, user_id):
         self.chat_id = str(chat_id)  # ensure string

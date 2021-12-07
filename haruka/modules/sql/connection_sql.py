@@ -18,7 +18,7 @@
 import threading
 from typing import Union
 
-from sqlalchemy import Column, String, Boolean, Integer
+from sqlalchemy import Column, String, Boolean, Integer, BigInteger
 
 from haruka.modules.sql import SESSION, BASE
 
@@ -37,7 +37,7 @@ class ChatAccessConnectionSettings(BASE):
 
 class Connection(BASE):
     __tablename__ = "connection"
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)
     chat_id = Column(String(14))
 
     def __init__(self, user_id, chat_id):
@@ -47,7 +47,7 @@ class Connection(BASE):
 
 class ConnectionHistory(BASE):
     __tablename__ = "connection_history5"
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)
     chat_id1 = Column(String(14))
     chat_id2 = Column(String(14))
     chat_id3 = Column(String(14))
