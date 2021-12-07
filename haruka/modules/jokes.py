@@ -28,6 +28,7 @@ from haruka.modules.tr_engine.strings import tld, tld_list
 
 from haruka import CONFIG
 
+
 @run_async
 def runs(update: Update, context: CallbackContext):
     chat = update.effective_chat

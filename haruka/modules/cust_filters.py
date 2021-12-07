@@ -216,14 +216,6 @@ def reply_filter(update: Update, context: CallbackContext):
     chat = update.effective_chat
     message = update.effective_message
 
-    if update.effective_user:
-        if update.effective_user.id == 777000:
-            return
-        else:
-            pass
-    else:
-        return
-
     to_match = extract_text(message)
     if not to_match:
         return

@@ -26,16 +26,14 @@ class CustomCommandHandler(tg.CommandHandler):
     def __init__(self, command, callback, run_async=False, **kwargs):
         if "admin_ok" in kwargs:
             del kwargs["admin_ok"]
-        kwargs["filters"] = kwargs.get("filters", tg.Filters.update.message) & ~tg.Filters.update.edited_message
+        kwargs["filters"] = kwargs.get(
+            "filters",
+            tg.Filters.update.message) & ~tg.Filters.update.edited_message
         super().__init__(command, callback, run_async=run_async, **kwargs)
 
     def check_update(self, update):
         if isinstance(update, Update) and update.effective_message:
             message = update.effective_message
-
-            if update.effective_user and int(
-                    update.effective_user.id) == 777000:
-                return False
 
             if message.text and len(message.text) > 1:
                 fst_word = message.text_html.split(None, 1)[0]
@@ -62,7 +60,8 @@ class CustomCommandHandler(tg.CommandHandler):
 
 class CustomMessageHandler(tg.MessageHandler):
     def __init__(self, filters, callback, run_async=False, **kwargs):
-        filters = (filters or tg.Filters.update) & ~tg.Filters.update.edited_message
+        filters = (filters
+                   or tg.Filters.update) & ~tg.Filters.update.edited_message
         super().__init__(filters, callback, run_async=run_async, **kwargs)
 
 
