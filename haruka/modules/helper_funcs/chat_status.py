@@ -137,12 +137,11 @@ def bot_admin(func):
 
         if is_bot_admin(update.effective_chat, bot.id):
             return func(bot, update, *args, **kwargs)
-        else:
-            try:
-                update.effective_message.reply_text(
-                    tld(chat.id, 'helpers_bot_not_admin'))
-            except:
-                return False
+        try:
+            update.effective_message.reply_text(
+                tld(chat.id, 'helpers_bot_not_admin'))
+        except:
+            return False
 
     return is_admin
 

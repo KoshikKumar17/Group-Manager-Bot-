@@ -48,9 +48,7 @@ def check_and_ban(update, user_id, should_message=True):
                     message.reply_text(tld(
                         chat.id, "antispam_spamwatch_banned").format(reason),
                                        parse_mode=ParseMode.HTML)
-                    return
-                else:
-                    return
+                return
         else:
             return
     except:
@@ -92,7 +90,7 @@ def enforce_gban(bot: Bot, update: Update):
 @user_admin
 def antispam(bot: Bot, update: Update, args: List[str]):
     chat = update.effective_chat
-    if len(args) > 0:
+    if args:
         if args[0].lower() in ["on", "yes"]:
             sql.enable_antispam(chat.id)
             update.effective_message.reply_text(tld(chat.id, "antispam_on"))

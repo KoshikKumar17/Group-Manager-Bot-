@@ -34,7 +34,7 @@ class GloballyBannedUsers(BASE):
         self.reason = reason
 
     def __repr__(self):
-        return "<GBanned User {} ({})>".format(self.name, self.user_id)
+        return f"<GBanned User {self.name} ({self.user_id})>"
 
     def to_dict(self):
         return {
@@ -54,7 +54,7 @@ class AntispamSettings(BASE):
         self.setting = enabled
 
     def __repr__(self):
-        return "<Gban setting {} ({})>".format(self.chat_id, self.setting)
+        return f"<Gban setting {self.chat_id} ({self.setting})>"
 
 
 AntispamSettings.__table__.create(checkfirst=True)
@@ -106,8 +106,7 @@ def __load_gban_stat_list():
 
 def migrate_chat(old_chat_id, new_chat_id):
     with ASPAM_SETTING_LOCK:
-        gban = SESSION.query(AntispamSettings).get(str(old_chat_id))
-        if gban:
+        if gban := SESSION.query(AntispamSettings).get(str(old_chat_id)):
             gban.chat_id = new_chat_id
             SESSION.add(gban)
 

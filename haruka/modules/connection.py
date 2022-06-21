@@ -35,21 +35,17 @@ from haruka.modules.keyboard import keyboard
 @run_async
 def allow_connections(bot: Bot, update: Update, args: List[str]) -> str:
     chat = update.effective_chat  # type: Optional[Chat]
-    if chat.type != chat.PRIVATE:
-        if len(args) >= 1:
-            var = args[0]
-            print(var)
-            if var == "no" or var == "off":
-                sql.set_allow_connect_to_chat(chat.id, False)
-                update.effective_message.reply_text(
-                    tld(chat.id, "connection_disable"))
-            elif var == "yes" or var == "on":
-                sql.set_allow_connect_to_chat(chat.id, True)
-                update.effective_message.reply_text(
-                    tld(chat.id, "connection_enable"))
-            else:
-                update.effective_message.reply_text(
-                    tld(chat.id, "connection_err_wrong_arg"))
+    if chat.type != chat.PRIVATE and args:
+        var = args[0]
+        print(var)
+        if var in ["no", "off"]:
+            sql.set_allow_connect_to_chat(chat.id, False)
+            update.effective_message.reply_text(
+                tld(chat.id, "connection_disable"))
+        elif var in ["yes", "on"]:
+            sql.set_allow_connect_to_chat(chat.id, True)
+            update.effective_message.reply_text(
+                tld(chat.id, "connection_enable"))
         else:
             update.effective_message.reply_text(
                 tld(chat.id, "connection_err_wrong_arg"))
@@ -79,9 +75,9 @@ def connect_chat(bot, update, args):
                         update.effective_message.from_user.id).status in
                 ('member')) or (user.id in SUDO_USERS):
 
-                connection_status = sql.connect(
-                    update.effective_message.from_user.id, connect_chat)
-                if connection_status:
+                if connection_status := sql.connect(
+                    update.effective_message.from_user.id, connect_chat
+                ):
                     chat_name = dispatcher.bot.getChat(
                         connected(bot, update, chat, user.id,
                                   need_admin=False)).title
@@ -89,9 +85,7 @@ def connect_chat(bot, update, args):
                         tld(chat.id, "connection_success").format(chat_name),
                         parse_mode=ParseMode.MARKDOWN)
 
-                    #Add chat to connection history
-                    history = sql.get_history(user.id)
-                    if history:
+                    if history := sql.get_history(user.id):
                         #Vars
                         if history.chat_id1:
                             history1 = int(history.chat_id1)
@@ -119,7 +113,6 @@ def connect_chat(bot, update, args):
 
                         sql.add_history(user.id, history1, history2, history3,
                                         number)
-                        # print(history.user_id, history.chat_id1, history.chat_id2, history.chat_id3, history.updated)
                     else:
                         sql.add_history(user.id, connect_chat, "0", "0", 2)
                     # Rebuild user's keyboard
@@ -147,9 +140,9 @@ def connect_chat(bot, update, args):
                     connect_chat, update.effective_message.from_user.id).status
                 in 'member') or (user.id in SUDO_USERS):
 
-            connection_status = sql.connect(
-                update.effective_message.from_user.id, connect_chat)
-            if connection_status:
+            if connection_status := sql.connect(
+                update.effective_message.from_user.id, connect_chat
+            ):
                 update.effective_message.reply_text(
                     tld(chat.id, "connection_success").format(chat.id),
                     parse_mode=ParseMode.MARKDOWN)
@@ -168,9 +161,9 @@ def connect_chat(bot, update, args):
 def disconnect_chat(bot, update):
     chat = update.effective_chat  # type: Optional[Chat]
     if update.effective_chat.type == 'private':
-        disconnection_status = sql.disconnect(
-            update.effective_message.from_user.id)
-        if disconnection_status:
+        if disconnection_status := sql.disconnect(
+            update.effective_message.from_user.id
+        ):
             sql.disconnected_chat = update.effective_message.reply_text(
                 tld(chat.id, "connection_dis_success"))
             #Rebuild user's keyboard
@@ -201,10 +194,9 @@ def connected(bot, update, chat, user_id, need_admin=True):
                             'administrator',
                             'creator') or user_id in SUDO_USERS:
                     return conn_id
-                else:
-                    update.effective_message.reply_text(
-                        tld(chat.id, "connection_err_no_admin"))
-                    return
+                update.effective_message.reply_text(
+                    tld(chat.id, "connection_err_no_admin"))
+                return
             else:
                 return conn_id
         else:

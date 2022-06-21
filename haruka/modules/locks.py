@@ -105,8 +105,6 @@ def restr_members(bot,
                   other=False,
                   previews=False):
     for mem in members:
-        if mem.user in SUDO_USERS:
-            pass
         try:
             bot.restrict_chat_member(chat_id,
                                      mem.user,
@@ -154,29 +152,23 @@ def lock(bot: Bot, update: Update, args: List[str]) -> str:
     user = update.effective_user
     message = update.effective_message
     if can_delete(chat, bot.id):
-        if len(args) >= 1:
+        if args:
             if args[0] in LOCK_TYPES:
                 sql.update_lock(chat.id, args[0], locked=True)
                 message.reply_text(tld(chat.id,
                                        "locks_lock_success").format(args[0]),
                                    parse_mode=ParseMode.MARKDOWN)
 
-                return "<b>{}:</b>" \
-                       "\n#LOCK" \
-                       "\n<b>Admin:</b> {}" \
-                       "\nLocked <code>{}</code>.".format(html.escape(chat.title),
-                                                          mention_html(user.id, user.first_name), args[0])
+                return f"<b>{html.escape(chat.title)}:</b>\n#LOCK\n<b>Admin:</b> {mention_html(user.id, user.first_name)}\nLocked <code>{args[0]}</code>."
+
 
             elif args[0] in RESTRICTION_TYPES:
                 sql.update_restriction(chat.id, args[0], locked=True)
                 message.reply_text(tld(chat.id,
                                        "locks_lock_success").format(args[0]),
                                    parse_mode=ParseMode.MARKDOWN)
-                return "<b>{}:</b>" \
-                       "\n#LOCK" \
-                       "\n<b>Admin:</b> {}" \
-                       "\nLocked <code>{}</code>.".format(html.escape(chat.title),
-                                                          mention_html(user.id, user.first_name), args[0])
+                return f"<b>{html.escape(chat.title)}:</b>\n#LOCK\n<b>Admin:</b> {mention_html(user.id, user.first_name)}\nLocked <code>{args[0]}</code>."
+
 
             else:
                 message.reply_text(tld(chat.id, "locks_type_invalid"))
@@ -197,17 +189,14 @@ def unlock(bot: Bot, update: Update, args: List[str]) -> str:
     user = update.effective_user
     message = update.effective_message
     if is_user_admin(chat, message.from_user.id):
-        if len(args) >= 1:
+        if args:
             if args[0] in LOCK_TYPES:
                 sql.update_lock(chat.id, args[0], locked=False)
                 message.reply_text(tld(chat.id,
                                        "locks_unlock_success").format(args[0]),
                                    parse_mode=ParseMode.MARKDOWN)
-                return "<b>{}:</b>" \
-                       "\n#UNLOCK" \
-                       "\n<b>Admin:</b> {}" \
-                       "\nUnlocked <code>{}</code>.".format(html.escape(chat.title),
-                                                            mention_html(user.id, user.first_name), args[0])
+                return f"<b>{html.escape(chat.title)}:</b>\n#UNLOCK\n<b>Admin:</b> {mention_html(user.id, user.first_name)}\nUnlocked <code>{args[0]}</code>."
+
 
             elif args[0] in RESTRICTION_TYPES:
                 sql.update_restriction(chat.id, args[0], locked=False)
@@ -232,11 +221,8 @@ def unlock(bot: Bot, update: Update, args: List[str]) -> str:
                                        "locks_unlock_success").format(args[0]),
                                    parse_mode=ParseMode.MARKDOWN)
 
-                return "<b>{}:</b>" \
-                       "\n#UNLOCK" \
-                       "\n<b>Admin:</b> {}" \
-                       "\nUnlocked <code>{}</code>.".format(html.escape(chat.title),
-                                                            mention_html(user.id, user.first_name), args[0])
+                return f"<b>{html.escape(chat.title)}:</b>\n#UNLOCK\n<b>Admin:</b> {mention_html(user.id, user.first_name)}\nUnlocked <code>{args[0]}</code>."
+
             else:
                 message.reply_text(tld(chat.id, "locks_type_invalid"))
 
@@ -271,9 +257,7 @@ def del_lockables(bot: Bot, update: Update):
                 try:
                     message.delete()
                 except BadRequest as excp:
-                    if excp.message == "Message to delete not found":
-                        pass
-                    else:
+                    if excp.message != "Message to delete not found":
                         LOGGER.exception("ERROR in lockables")
 
             break
@@ -290,9 +274,7 @@ def rest_handler(bot: Bot, update: Update):
             try:
                 msg.delete()
             except BadRequest as excp:
-                if excp.message == "Message to delete not found":
-                    pass
-                else:
+                if excp.message != "Message to delete not found":
                     LOGGER.exception("ERROR in restrictions")
             break
 
@@ -308,13 +290,28 @@ def build_lock_message(chat, chatP, user, chatname):
         sql.init_restrictions(chat.id)
         restr = sql.get_restr(chat.id)
 
-    res = tld(chatP.id, "locks_list").format(
-        chatname, locks.sticker, locks.audio, locks.voice, locks.document,
-        locks.video, locks.videonote, locks.contact, locks.photo, locks.gif,
-        locks.url, locks.bots, locks.forward, locks.game, locks.location,
-        restr.messages, restr.media, restr.other, restr.preview,
-        all([restr.messages, restr.media, restr.other, restr.preview]))
-    return res
+    return tld(chatP.id, "locks_list").format(
+        chatname,
+        locks.sticker,
+        locks.audio,
+        locks.voice,
+        locks.document,
+        locks.video,
+        locks.videonote,
+        locks.contact,
+        locks.photo,
+        locks.gif,
+        locks.url,
+        locks.bots,
+        locks.forward,
+        locks.game,
+        locks.location,
+        restr.messages,
+        restr.media,
+        restr.other,
+        restr.preview,
+        all([restr.messages, restr.media, restr.other, restr.preview]),
+    )
 
 
 @run_async

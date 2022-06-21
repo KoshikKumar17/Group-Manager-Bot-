@@ -37,8 +37,7 @@ def get_rules(bot: Bot, update: Update):
     msg = update.effective_message
     from_pm = False
 
-    conn = connected(bot, update, chat, user.id)
-    if conn:
+    if conn := connected(bot, update, chat, user.id):
         chat_id = conn
         from_pm = True
     else:
@@ -58,13 +57,12 @@ def send_rules(update, chat_id, from_pm=False):
     try:
         chat = bot.get_chat(chat_id)
     except BadRequest as excp:
-        if excp.message == "Chat not found" and from_pm:
-            bot.send_message(user.id,
-                             tld(chat.id, "rules_shortcut_not_setup_properly"))
-            return
-        else:
+        if excp.message != "Chat not found" or not from_pm:
             raise
 
+        bot.send_message(user.id,
+                         tld(chat.id, "rules_shortcut_not_setup_properly"))
+        return
     rules = sql.get_rules(chat_id)
     text = tld(chat.id, "rules_display").format(escape_markdown(chat.title),
                                                 rules)
@@ -77,11 +75,18 @@ def send_rules(update, chat_id, from_pm=False):
         rules_text = tld(chat.id, "rules")
         update.effective_message.reply_text(
             tld(chat.id, "rules_button_click"),
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton(text=rules_text,
-                                     url="t.me/{}?start={}".format(
-                                         bot.username, chat_id))
-            ]]))
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text=rules_text,
+                            url=f"t.me/{bot.username}?start={chat_id}",
+                        )
+                    ]
+                ]
+            ),
+        )
+
     else:
         update.effective_message.reply_text(tld(chat.id, "rules_not_found"))
 
@@ -93,8 +98,8 @@ def set_rules(bot: Bot, update: Update):
     user = update.effective_user
     msg = update.effective_message
 
-    conn = connected(bot, update, chat, user.id)
-    if conn: chat_id = conn
+    if conn := connected(bot, update, chat, user.id):
+        if conn: chat_id = conn
     else:
         if chat.type == 'private':
             msg.reply_text(tld(chat.id, 'common_cmd_group_only'))
@@ -123,8 +128,8 @@ def clear_rules(bot: Bot, update: Update):
     user = update.effective_user
     msg = update.effective_message
 
-    conn = connected(bot, update, chat, user.id)
-    if conn: chat_id = conn
+    if conn := connected(bot, update, chat, user.id):
+        if conn: chat_id = conn
     else:
         if chat.type == 'private':
             msg.reply_text(tld(chat.id, 'common_cmd_group_only'))
@@ -136,7 +141,7 @@ def clear_rules(bot: Bot, update: Update):
 
 
 def __stats__():
-    return "• `{}` chats have rules set.".format(sql.num_chats())
+    return f"• `{sql.num_chats()}` chats have rules set."
 
 
 def __migrate__(old_chat_id, new_chat_id):

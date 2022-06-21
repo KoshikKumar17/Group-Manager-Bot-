@@ -50,7 +50,7 @@ except Exception as eee:
     )
     quit(1)
 
-if not CONFIG['is_example_config_or_not'] == "not_sample_anymore":
+if CONFIG['is_example_config_or_not'] != "not_sample_anymore":
     print("Please, use your eyes and stop being blinded.")
     quit(1)
 
@@ -74,12 +74,12 @@ except ValueError:
     raise Exception("Your 'owner_username' must be set.")
 
 try:
-    SUDO_USERS = set(int(x) for x in CONFIG['sudo_users'] or [])
+    SUDO_USERS = {int(x) for x in CONFIG['sudo_users'] or []}
 except ValueError:
     raise Exception("Your sudo users list does not contain valid integers.")
 
 try:
-    WHITELIST_USERS = set(int(x) for x in CONFIG['whitelist_users'] or [])
+    WHITELIST_USERS = {int(x) for x in CONFIG['whitelist_users'] or []}
 except ValueError:
     raise Exception(
         "Your whitelisted users list does not contain valid integers.")
@@ -98,7 +98,7 @@ SUDO_USERS.add(OWNER_ID)
 spamwatch_api = CONFIG['sw_api']
 
 if spamwatch_api == "None":
-    spamwatch_api == None
+    spamwatch_api is None
 
 updater = tg.Updater(TOKEN, workers=WORKERS)
 

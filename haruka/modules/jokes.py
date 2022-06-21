@@ -46,27 +46,23 @@ def slap(bot: Bot, update: Update, args: List[str]):
 
     # get user who sent message
     if msg.from_user.username:
-        curr_user = "@" + escape_markdown(msg.from_user.username)
+        curr_user = f"@{escape_markdown(msg.from_user.username)}"
     else:
-        curr_user = "[{}](tg://user?id={})".format(msg.from_user.first_name,
-                                                   msg.from_user.id)
+        curr_user = f"[{msg.from_user.first_name}](tg://user?id={msg.from_user.id})"
 
-    user_id = extract_user(update.effective_message, args)
-    if user_id:
+    if user_id := extract_user(update.effective_message, args):
         slapped_user = bot.get_chat(user_id)
         user1 = curr_user
         if slapped_user.username == "RealAkito":
             reply_text(tld(chat.id, "jokes_not_doing_that"))
             return
         if slapped_user.username:
-            user2 = "@" + escape_markdown(slapped_user.username)
+            user2 = f"@{escape_markdown(slapped_user.username)}"
         else:
-            user2 = "[{}](tg://user?id={})".format(slapped_user.first_name,
-                                                   slapped_user.id)
+            user2 = f"[{slapped_user.first_name}](tg://user?id={slapped_user.id})"
 
-    # if no target found, bot targets the sender
     else:
-        user1 = "[{}](tg://user?id={})".format(bot.first_name, bot.id)
+        user1 = f"[{bot.first_name}](tg://user?id={bot.id})"
         user2 = curr_user
 
     temp = random.choice(tld_list(chat.id, "jokes_slaps_templates_list"))

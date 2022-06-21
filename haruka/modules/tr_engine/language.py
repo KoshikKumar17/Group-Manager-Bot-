@@ -54,27 +54,25 @@ def locale(bot, update, args):
                 text += "\n\n*Currently available languages:*\n"
                 for lang in LANGUAGES:
                     locale = list_locales[lang]
-                    text += "\n *{}* - `{}`".format(locale, lang)
+                    text += f"\n *{locale}* - `{lang}`"
                 message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
         else:
             text = tld(chat.id, "language_code_not_valid")
             text += "\n\n*Currently available languages:*\n"
             for lang in LANGUAGES:
                 locale = list_locales[lang]
-                text += "\n *{}* - `{}`".format(locale, lang)
+                text += f"\n *{locale}* - `{lang}`"
             message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
+    elif LANGUAGE := prev_locale(chat.id):
+        locale = LANGUAGE.locale_name
+        native_lang = list_locales[locale]
+        message.reply_text(tld(
+            chat.id, "language_current_locale").format(native_lang),
+                           parse_mode=ParseMode.MARKDOWN)
     else:
-        LANGUAGE = prev_locale(chat.id)
-        if LANGUAGE:
-            locale = LANGUAGE.locale_name
-            native_lang = list_locales[locale]
-            message.reply_text(tld(
-                chat.id, "language_current_locale").format(native_lang),
-                               parse_mode=ParseMode.MARKDOWN)
-        else:
-            message.reply_text(tld(
-                chat.id, "language_current_locale").format("English (US)"),
-                               parse_mode=ParseMode.MARKDOWN)
+        message.reply_text(tld(
+            chat.id, "language_current_locale").format("English (US)"),
+                           parse_mode=ParseMode.MARKDOWN)
 
 
 @user_admin
@@ -82,8 +80,7 @@ def locale_button(bot, update):
     chat = update.effective_chat
     user = update.effective_user
     query = update.callback_query
-    lang_match = re.findall(r"en-US|id|ru|es", query.data)
-    if lang_match:
+    if lang_match := re.findall(r"en-US|id|ru|es", query.data):
         if lang_match[0]:
             switch_to_locale(chat.id, lang_match[0])
             query.answer(text=tld(chat.id, 'language_switch_success_pm').
@@ -101,9 +98,7 @@ def locale_button(bot, update):
     text = tld(chat.id, "language_select_language")
     text += tld(chat.id, "language_user_language").format(curr_lang)
 
-    conn = connected(bot, update, chat, user.id, need_admin=False)
-
-    if conn:
+    if conn := connected(bot, update, chat, user.id, need_admin=False):
         try:
             chatlng = prev_locale(conn).locale_name
             chatlng = list_locales[chatlng]

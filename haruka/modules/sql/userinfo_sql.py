@@ -95,8 +95,7 @@ def set_user_bio(user_id, bio):
 
 def clear_user_info(user_id):
     with INSERTION_LOCK:
-        curr = SESSION.query(UserInfo).get(user_id)
-        if curr:
+        if curr := SESSION.query(UserInfo).get(user_id):
             SESSION.delete(curr)
             SESSION.commit()
             return True
@@ -107,8 +106,7 @@ def clear_user_info(user_id):
 
 def clear_user_bio(user_id):
     with INSERTION_LOCK:
-        curr = SESSION.query(UserBio).get(user_id)
-        if curr:
+        if curr := SESSION.query(UserBio).get(user_id):
             SESSION.delete(curr)
             SESSION.commit()
             return True
